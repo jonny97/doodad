@@ -69,6 +69,17 @@ class TestLaunchAPI(unittest.TestCase):
         )
         self.assertEqual(result.strip(), '--help')
 
+    def test_run_commands_cli_args(self):
+        launcher = mode.LocalMode()
+        result = launch_api.run_commands(
+            'echo',
+            cli_args=['--help', '--foo'],
+            mode=launcher,
+            return_output=True
+        )
+        self.assertEqual(result[0].strip(), '--help')
+        self.assertEqual(result[1].strip(), '--foo')
+
     def test_run_python(self):
         launcher = mode.LocalMode()
         result = launch_api.run_python(

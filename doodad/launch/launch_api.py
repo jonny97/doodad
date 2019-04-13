@@ -55,6 +55,54 @@ def run_command(
     return result
 
 
+def run_commands(
+        command,
+        cli_args=(None,),
+        mode=launch_mode.LocalMode(),
+        mounts=tuple(),
+        return_output=False,
+        verbose=False,
+        docker_image='ubuntu:18.04'
+    ):
+    """
+    Run multiple commands in one call, each with potentially different
+    command line arguments. This function will be faster than running
+    run_command() N times.
+
+    To launch a command N times without args, pass [None]*N as cli_args.
+    To launch a command N times with args, pass in a list of command line arguments
+    as cli_args -- the script will be run once per set of arguments.
+
+    Args:
+        command (str): A shell command
+        cli_args (list[str]): A list of command line arguments to pass,
+            one per call. The command will be called once PER item in this list.
+        mode (LaunchMode): A LaunchMode object
+        mounts (tuple): A list/tuple of Mount objects
+        return_output (bool): If True, returns stdout as a string.
+            Do not use if the output will be large.
+
+    Returns:
+        A string output if return_output is True,
+        else None
+    """
+    results = []
+    with archive_builder.temp_archive_file() as archive_file:
+        archive = archive_builder.build_archive(archive_filename=archive_file,
+                                                payload_script=command,
+                                                verbose=False, 
+                                                docker_image=docker_image,
+                                                mounts=mounts)
+        cmd = archive
+        for cli_arg in cli_args:
+            if cli_arg:
+                cmd = archive + ' -- ' + cli_args
+            results.append(mode.run_script(cmd, return_output=return_output, verbose=verbose))
+    if return_output:
+        results = [archive_builder._strip_stdout(result) for result in results]
+    return results
+
+
 def run_python(
         target,
         target_mount_dir='target',
