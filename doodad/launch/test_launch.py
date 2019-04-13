@@ -69,6 +69,17 @@ class TestLaunchAPI(unittest.TestCase):
         )
         self.assertEqual(result.strip(), '--help')
 
+    def test_run_commands_cli_args(self):
+        launcher = mode.LocalMode()
+        result = launch_api.run_commands(
+            'echo',
+            cli_args=['--help', '--foo'],
+            mode=launcher,
+            return_output=True
+        )
+        self.assertEqual(result[0].strip(), '--help')
+        self.assertEqual(result[1].strip(), '--foo')
+
     def test_run_python(self):
         launcher = mode.LocalMode()
         result = launch_api.run_python(
@@ -77,8 +88,21 @@ class TestLaunchAPI(unittest.TestCase):
             return_output=True,
             docker_image='python:3'
         )
-        print(result)
         self.assertEqual(result.strip(), 'hello123')
+
+    def test_run_python_n_times(self):
+        launcher = mode.LocalMode()
+        N = 3
+        result = launch_api.run_python(
+            target=path.join(TESTING_DIR, 'hello_world.py'),
+            mode=launcher,
+            return_output=True,
+            docker_image='python:3',
+            cli_args=[None]*N
+        )
+        self.assertEqual(len(results), N)
+        for run_result in result:
+            self.assertEqual(run_result.strip(), 'hello123')
 
 
 if __name__ == '__main__':
