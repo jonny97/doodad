@@ -108,7 +108,7 @@ def run_python(
         target_mount_dir='target',
         mounts=tuple(),
         docker_image='python:3',
-        run_multiple=True,
+        run_multiple=False,
         **kwargs
     ):
     """

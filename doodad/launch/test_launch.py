@@ -98,9 +98,10 @@ class TestLaunchAPI(unittest.TestCase):
             mode=launcher,
             return_output=True,
             docker_image='python:3',
+            run_multiple=True,
             cli_args=[None]*N
         )
-        self.assertEqual(len(results), N)
+        self.assertEqual(len(result), N)
         for run_result in result:
             self.assertEqual(run_result.strip(), 'hello123')
 
